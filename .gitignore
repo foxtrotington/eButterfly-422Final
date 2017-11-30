@@ -1,0 +1,13 @@
+#copy of Jeff's gitignore
+.Rproj.user
+data/cropped-bioclim-2.5.grd
+data/wc2-5
+data/gbif
+!data/gbif/taxon-ids.txt
+output/*
+!*.gitkeep
+!output/*/
+output/images/*
+!output/images/.gitkeep
+output/rasters/*
+!output/rasters/.gitkeep
