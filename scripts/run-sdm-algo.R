@@ -187,4 +187,65 @@ cat("Finished with file writing.\n")
 
 for (i in unique(obs.data$month)) {
     dir.create(paste0(outpath, i))
+    obs.data_subset <- obs.data[which(obs.data$month == i),]
+    sdms <- SDMAlgos(data = obs.data_subset,
+                 env.data = bioclim.data,
+                 sdm.algorithm = sdm.algorithm,
+                 bg.replicates = bg.replicates)
+
+presence.raster <- sdms$presence
+presence.raster <- presence.raster > bg.replicates * rep.threshold
+presence.raster[presence.raster <= 0] <- NA
+probabilities.raster <- sdms$probabilities
+probabilities.raster[probabilities.raster <= 0] <- NA
+
+################################################################################
+# OUTPUT
+# Save graphics image of presence/absence
+# Save rasters of presence/absence and occurrence probabilities
+
+# Save image to file
+data(wrld_simpl) # Need this for the map
+
+# Could restrict to observed distribution, but very coarse (giant pixels)
+# obs.min.max <- MinMaxCoordinates(x = obs.data)
+
+png.name <- paste0(outpath, i,"/", outprefix, "-", sdm.algorithm, "-prediction.png")
+png(filename = png.name)
+par(mar = c(3, 3, 3, 1) + 0.1)
+plot(wrld_simpl,
+    xlim = c(min.max["min.lon"], min.max["max.lon"]),
+    ylim = c(min.max["min.lat"], min.max["max.lat"]),
+    col = "#F2F2F2",
+    axes = TRUE)
+plot(presence.raster,
+    main = "Presence/Absence",
+    legend = FALSE,
+    add = TRUE,
+    col = c("forestgreen"))
+
+# Redraw borders
+    plot(wrld_simpl,
+    add = TRUE,
+    border = "dark grey")
+box()
+
+# Restore default margins
+par(mar = c(5, 4, 4, 2) + 0.1)
+
+# This creates a nicer map:
+# plot(sdm@binary, legend = FALSE, col = c("#DEDEDE", "#228B22")) # Grey and forest green
+dev.off()
+
+# Save raster to files
+suppressMessages(writeRaster(x = probabilities.raster,
+                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-prediction.grd"),
+                             format = "raster",
+                             overwrite = TRUE))
+
+suppressMessages(writeRaster(x = presence.raster,
+                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-prediction-threshold.grd"),
+                             format = "raster",
+                             overwrite = TRUE))
+cat("Finished with file writing.\n")
 }
