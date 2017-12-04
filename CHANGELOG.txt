@@ -1,0 +1,7 @@
+## 2017-12-4 - run-sdm-algo.R
+* Add R interpretor for easy execution (line 1)
+* Remove "Make sure directories are writeable" (originally lines 54-61)
+* Correct relative "functions" path (line 97)
+* Add "month" subset to obs.data (line 107)
+* Correct relative "data" path for bioclim.data (line 124)
+* Add "Month Plot Generation" (lines 186 - )
