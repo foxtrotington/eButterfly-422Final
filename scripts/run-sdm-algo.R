@@ -146,7 +146,10 @@ data(wrld_simpl) # Need this for the map
 # Could restrict to observed distribution, but very coarse (giant pixels)
 # obs.min.max <- MinMaxCoordinates(x = obs.data)
 
-png.name <- paste0(outpath, outprefix, "-", sdm.algorithm, "-prediction.png")
+#Create directory for year plots
+dir.create(paste0(outpath, "/year"))
+
+png.name <- paste0(outpath, "/year/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction.png")
 png(filename = png.name)
 par(mar = c(3, 3, 3, 1) + 0.1)
 plot(wrld_simpl, 
@@ -164,6 +167,7 @@ plot(presence.raster,
 plot(wrld_simpl,
      add = TRUE,
      border = "dark grey")
+title(main = paste0(obs.data$scientific_name[1], ": ", sdm.algorithm, " All Years")) 
 box()
 # Restore default margins
 par(mar = c(5, 4, 4, 2) + 0.1)
@@ -173,12 +177,12 @@ dev.off()
 
 # Save raster to files
 suppressMessages(writeRaster(x = probabilities.raster, 
-                             filename = paste0(outpath, outprefix, "-", sdm.algorithm, "-prediction.grd"),
+                             filename = paste0(outpath, "/year/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction.grd"),
                              format = "raster",
                              overwrite = TRUE))
 
 suppressMessages(writeRaster(x = presence.raster, 
-                             filename = paste0(outpath, outprefix, "-", sdm.algorithm, "-prediction-threshold.grd"),
+                             filename = paste0(outpath, "/year/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction-threshold.grd"),
                              format = "raster",
                              overwrite = TRUE))
 cat("Finished with file writing.\n")
@@ -210,7 +214,7 @@ data(wrld_simpl) # Need this for the map
 # Could restrict to observed distribution, but very coarse (giant pixels)
 # obs.min.max <- MinMaxCoordinates(x = obs.data)
 
-png.name <- paste0(outpath, i,"/", outprefix, "-", sdm.algorithm, "-prediction.png")
+png.name <- paste0(outpath, i,"/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction.png")
 png(filename = png.name)
 par(mar = c(3, 3, 3, 1) + 0.1)
 plot(wrld_simpl,
@@ -228,6 +232,7 @@ plot(presence.raster,
     plot(wrld_simpl,
     add = TRUE,
     border = "dark grey")
+title(main = paste0(obs.data$scientific_name[1], ": ", sdm.algorithm, " Month: ", i))
 box()
 
 # Restore default margins
@@ -239,12 +244,12 @@ dev.off()
 
 # Save raster to files
 suppressMessages(writeRaster(x = probabilities.raster,
-                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-prediction.grd"),
+                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction.grd"),
                              format = "raster",
                              overwrite = TRUE))
 
 suppressMessages(writeRaster(x = presence.raster,
-                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-prediction-threshold.grd"),
+                             filename = paste0(outpath, i, "/", outprefix, "-", sdm.algorithm, "-bg", bg.replicates, "-prediction-threshold.grd"),
                              format = "raster",
                              overwrite = TRUE))
 cat("Finished with file writing.\n")
