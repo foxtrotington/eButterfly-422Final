@@ -32,6 +32,7 @@ for file in $(cat $LIST); do
   cd $OUT_DIR/$ID
   tar -zcvf $ID.GLM.tar.gz GLM
   rm -rf GLM  
+  cd $FILE_DIR  
 
 done
 

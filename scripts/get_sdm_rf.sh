@@ -32,6 +32,7 @@ for file in $(cat $LIST); do
   cd $OUT_DIR/$ID
   tar -zcvf $ID.RF.tar.gz RF
   rm -rf RF
+  cd $FILE_DIR  
 
 done
 
