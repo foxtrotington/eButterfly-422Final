@@ -100,6 +100,8 @@ done
 for (( i = $START; i <= $END; i++ )); do
 	# Untar SDMs
 	tar xzC $OUTPUT -f $INPUT/$i/*$ALGORITHM*
+	# Grab relevant raster files
+	cp ./$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
 	# Remove unncessary files (png, gri, etc...)
-	ls -1 | grep -v '.*-bg$REPLICANT-.*\.grd' | xargs rm -f
+	rm -rf $OUTPUT/$ALGORITHM
 done
