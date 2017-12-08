@@ -102,7 +102,7 @@ SDM_DIRS=($INPUT*)
 # Aggregate rasters to stack
 for (( i = $START; i <= $END; i++ )); do
 	# Untar SDMs
-	tar xzvC $OUTPUT -f $SDM_DIRS[$i]/*$ALGORITHM*
+	tar xzvC $OUTPUT -f ${SDM_DIRS[$i]}/*$ALGORITHM*
 	# Grab relevant raster files
 	cp -n $OUTPUT/$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
 	# Remove unncessary files (png, gri, etc...)
