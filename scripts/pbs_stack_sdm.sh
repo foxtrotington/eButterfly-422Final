@@ -65,12 +65,12 @@ if [[ ! -d $OUTPUT/$ALGORITHM/$REPLICATE/intermediate ]]; then
 fi
 
 # Aggregate Raster files
-bash $SCRIPT_DIR/aggregate_raster.sh -a $ALGORITHM -r $REPLICATE -s $START -e $END -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
+bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $START -e $END -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
 
 # Grab one of the remainders, if there is one left
 if [[ $WORKER_NUM -lt $(( $TOTAL_DIRS % $NUM_WORKERS_PER )) ]]; then
 	REMAIN_INDEX=$(( ($CHUNK_SIZE * $NUM_WORKERS_PER) + $WORKER_NUM ))
-	bash $SCRIPT_DIR/aggregate_raster.sh -a $ALGORITHM -r $REPLICATE -s $REMAIN_INDEX -e $REMAIN_INDEX -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
+	bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $REMAIN_INDEX -e $REMAIN_INDEX -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
 fi
 
 # Run stack-sdm script and remove unneeded png files
