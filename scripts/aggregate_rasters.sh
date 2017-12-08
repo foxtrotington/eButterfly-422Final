@@ -99,9 +99,9 @@ done
 # Aggregate rasters to stack
 for (( i = $START; i <= $END; i++ )); do
 	# Untar SDMs
-	tar xzC $OUTPUT -f $INPUT/$i/*$ALGORITHM*
+	tar xzvC $OUTPUT -f $INPUT/$i/*$ALGORITHM*
 	# Grab relevant raster files
-	cp $INPUT/$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
+	cp $OUTPUT/$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
 	# Remove unncessary files (png, gri, etc...)
 	rm -rf $OUTPUT/$ALGORITHM
 done
