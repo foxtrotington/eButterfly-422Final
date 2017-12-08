@@ -6,7 +6,7 @@ print_usage() {
 	echo -e "\t-a | --algortithm\t-\tthe name of the algortithm: 'GLM', 'CTA', or 'RF'"
 	echo -e "\t-r | --replicates\t-\tthe number of replicates: '1', '10', or '50'"
 	echo -e "\t-s | --start\t\t-\tthe start index of the species to stack"
-	echo -e "\t-e | --end\t\t-\tthe end index of the species to stack"
+	echo -e "\t-e | --end\t\t-\tthe end index of the species to stack (inclusive)"
 	echo -e "\t-i | --input\t\t-\tinput directory"
 	echo -e "\t-o | --output\t\t-\toutput directory"
 	echo -e "\t-h | --help\t\t-\tprint this message"
@@ -97,7 +97,7 @@ while [[ "$1" != "" ]]; do
 done
 
 # Get array of SDM directories
-SDM_DIRS=($INPUT*)
+SDM_DIRS=($INPUT/*)
 
 # Aggregate rasters to stack
 for (( i = $START; i <= $END; i++ )); do
