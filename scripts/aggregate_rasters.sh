@@ -96,12 +96,15 @@ while [[ "$1" != "" ]]; do
 	shift
 done
 
+# Get array of SDM directories
+SDM_DIRS=($INPUT*)
+
 # Aggregate rasters to stack
 for (( i = $START; i <= $END; i++ )); do
 	# Untar SDMs
-	tar xzvC $OUTPUT -f $INPUT/$i/*$ALGORITHM*
+	tar xzvC $OUTPUT -f $SDM_DIRS[$i]/*$ALGORITHM*
 	# Grab relevant raster files
-	cp $OUTPUT/$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
+	cp -n $OUTPUT/$ALGORITHM/year/*-bg$REPLICANT-*.grd $OUTPUT
 	# Remove unncessary files (png, gri, etc...)
 	rm -rf $OUTPUT/$ALGORITHM
 done
