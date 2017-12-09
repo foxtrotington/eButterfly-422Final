@@ -33,7 +33,6 @@
 ### Load modules
 module load R
 
-
 ### Job
 
 # Compute range of species to work on
@@ -56,8 +55,12 @@ if [[ ! -d $OUTPUT/$ALGORITHM/$REPLICATE/ ]]; then
 	mkdir $OUTPUT/$ALGORITHM/$REPLICATE/
 fi
 
-if [[ ! -d  $OUTPUT/$ALGORITHM/$REPLICATE/raw ]]; then
-	mkdir $OUTPUT/$ALGORITHM/$REPLICATE/raw
+if [[ ! -d  $OUTPUT/$ALGORITHM/$REPLICATE/raw/ ]]; then
+	mkdir $OUTPUT/$ALGORITHM/$REPLICATE/raw/
+fi
+
+if [[ ! -d $OUTPUT/$ALGORITHM/$REPLICATE/raw/node$WORKER_NUM ]]; then
+	mkdir $OUTPUT/$ALGORITHM/$REPLICATE/raw/node$WORKER_NUM
 fi
 
 if [[ ! -d $OUTPUT/$ALGORITHM/$REPLICATE/intermediate ]]; then
@@ -65,16 +68,25 @@ if [[ ! -d $OUTPUT/$ALGORITHM/$REPLICATE/intermediate ]]; then
 fi
 
 # Aggregate Raster files
-bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $START -e $END -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
+bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $START -e $END -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw/node$WORKER_NUM/
 
 # Grab one of the remainders, if there is one left
 if [[ $WORKER_NUM -lt $(( $TOTAL_DIRS % $NUM_WORKERS_PER )) ]]; then
 	REMAIN_INDEX=$(( ($CHUNK_SIZE * $NUM_WORKERS_PER) + $WORKER_NUM ))
-	bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $REMAIN_INDEX -e $REMAIN_INDEX -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw
+	bash $SCRIPT_DIR/aggregate_rasters.sh -a $ALGORITHM -r $REPLICATE -s $REMAIN_INDEX -e $REMAIN_INDEX -i $INPUT -o $OUTPUT/$ALGORITHM/$REPLICATE/raw/node$WORKER_NUM/
 fi
 
 # Run stack-sdm script and remove unneeded png files
-Rscript $SCRIPT_DIR/stack-sdms.R $OUTPUT/$ALGORITHM/$REPLICATE/raw node$WORKER_NUM-$ALGORITHM-bg$REPLICATE $OUTPUT/$ALGORITHM/$REPLICATE/intermediate
+Rscript $SCRIPT_DIR/stack-sdms.R $OUTPUT/$ALGORITHM/$REPLICATE/raw/node$WORKER_NUM/ node$WORKER_NUM-$ALGORITHM-bg$REPLICATE $OUTPUT/$ALGORITHM/$REPLICATE/intermediate
 rm $OUTPUT/$ALGORITHM/$REPLICATE/intermediate/*.png
 
+# Increment number of finished nodes
+COUNT_PATH=$SCRIPT_DIR/resources/$ALGORITHM-$REPLICATE-finished.count
+COUNT=$(flock -e $SCRIPT_DIR/resources/stack.lock echo $(( $(cat $COUNT_PATH) + 1 )) > $COUNT_PATH; cat $COUNT_PATH)
+
 # If last worker done, then do second pass to combine intermediate stacks
+if [[ $COUNT == $NUM_WORKERS_PER ]]; then
+	Rscript $SCRIPT_DIR/stack-sdms.R $OUTPUT/$ALGORITHM/$REPLICATE/intermediate final-$ALGORITHM-bg$REPLICATE $OUTPUT/$ALGORITHM/$REPLICATE/
+fi
+
+# Otherwise die down
