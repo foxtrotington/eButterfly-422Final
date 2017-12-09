@@ -33,6 +33,9 @@
 ### Load modules
 module load R
 
+### Change directory
+cd $(dirname $SCRIPT_DIR)
+
 ### Job
 
 # Compute range of species to work on
