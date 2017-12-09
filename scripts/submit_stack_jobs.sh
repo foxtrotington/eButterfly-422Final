@@ -64,8 +64,3 @@ for ALGORITHM in ${ALGORITHM_LIST[@]}; do
 		done
 	done
 done
-
-
-
-
-
