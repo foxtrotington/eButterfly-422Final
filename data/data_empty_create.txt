@@ -1,0 +1,72 @@
+CREATE OR REPLACE FUNCTION generate_sdm_table(
+	)
+    RETURNS TABLE(observation_id integer, species_id integer, latin_name text, year integer, month integer, latitude character varying, longitude character varying) 
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+    ROWS 1000
+AS $BODY$
+
+BEGIN 
+RETURN QUERY 
+	WITH interestedObservations
+    AS (
+        SELECT O.observation_id, O.checklist_id, O.species_id
+        FROM eb_butterflies.observations AS O 
+        JOIN eb_central.idconfidences AS IC
+        ON O.idconfidence_id=IC.idconfidence_id
+        JOIN eb_central.lifestages AS LS
+        ON O.lifestage_id=LS.lifestage_id
+        JOIN eb_central.observationstatuses AS OS
+        ON O.observationstatus_id=OS.status_id
+        WHERE 
+        idconfidence='High' AND
+        lifestage='Adult' AND
+        (observation_status='Vetted' OR observation_status='Pending')
+    ), 
+    onlyOnesInSpeciesTable
+    AS (
+    	SELECT O.observation_id, O.checklist_id, S.species_id, S.latin_name 
+        FROM interestedObservations AS O
+        JOIN eb_butterflies.species AS S
+        ON O.species_id=S.species_id
+    ),
+    grabYearMonthAndSiteId
+    AS (
+    	SELECT O.observation_id, O.species_id, O.latin_name, C.site_id, C.year, C.month
+        FROM onlyOnesInSpeciesTable AS O 
+        JOIN eb_central.checklists AS C 
+        ON O.checklist_id=C.checklist_id
+    ),
+    grabLatLng 
+    AS (
+        SELECT O.observation_id, O.species_id, O.latin_name, C.latitude, C.longitude, O.year, O.month
+        FROM grabYearMonthAndSiteId AS O 
+        JOIN eb_central.sites AS C 
+        ON O.site_id=C.site_id
+    ) 
+    SELECT O.observation_id, 
+    	   O.species_id, 
+           CAST(O.latin_name as text), 
+           CAST(O.year AS integer), 
+           CAST(O.month as integer), 
+           O.latitude, 
+           O.longitude 
+           FROM grabLatLng AS O;
+END;
+CREATE TABLE ebutterfly_sdm_table
+(
+    observation_id integer,
+    species_id integer,
+    latin_name text COLLATE pg_catalog."default",
+    year integer,
+    month integer,
+    latitude character varying(256) COLLATE pg_catalog."default",
+    longitude character varying(256) COLLATE pg_catalog."default"
+);
+CREATE TABLE inat_species
+(
+    taxonid integer,
+    scientificname text COLLATE pg_catalog."default"
+);
