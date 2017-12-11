@@ -20,39 +20,144 @@ Edit the OUT directory for SDM output storage.
 
     $ ./submit
 
-## Data Cleaning
+## Data
 
-<div>There are various tasks that need to be accomplished before the ebutterfly data is prepped and ready for SDM consumption. The following are different SQL commands that will show you what data isn't suitable for SDM consumption. You can create a quarantine table and append <code>INSERT INTO quarantine</code> to the commmands to create copies of the bad data in that table.</div>
+<p>There are various tasks that need to be accomplished before the ebutterfly data is prepped and ready for SDM consumption. The following are different SQL commands that will show you what data isn't suitable for SDM consumption. You can create a quarantine table and append <code>INSERT INTO quarantine</code> to the commmands to create copies of the bad data in that table.</p>
 
-<div style="margin-top: 15px;">It's also advised that a permanent ebutterfly table be created in order to use delete commands to get rid of bad data after insertion into the qurantine table. </div>
+<p style="margin-top: 15px;">It's also advised that a permanent ebutterfly table be created in order to use delete commands to get rid of bad data after insertion into the qurantine table.</p>
+
+**Note:** The create steps are included in `data/data_empty_create.txt` but are shown here separately in case you only want to see or use specific commands.
 
 ### Table of Contents
 <ol>
-	<li><a href="#bad-lat_lng">Non-decimal and Bad Lat/Lng Formats</a></li>
-	<li><a href="#missing-year_month">Missing Year or Month</a></li>
-	<li><a href="#missing-sciname">Missing Scientific Name</a></li>
+	<li>
+    	<a href="#data-prep">Data Prepping</a>
+    	<ul>
+            <li><a href="#create-sdm-funct">Create generate_sdm_table Function</a></li>
+	        <li><a href="#create-ebutterfly">Create ebutterfly_sdm_table</a></li>
+	        <li><a href="#create-taxon_sciname-table">Create TaxonId and Scientific Name Table</a></li>
+    	</ul>
+    </li>
+    <li>
+    	<a href="#data-cleaning">Data Cleaning</a>
+        <ul>
+            <li><a href="#bad-lat_lng">Non-decimal and Bad Lat/Lng Formats</a></li>
+	        <li><a href="#missing-year_month">Missing Year or Month</a></li>
+	        <li><a href="#missing-sciname">Missing Scientific Name</a></li>
+        </ul>
+    </li>
 </ol>
 
-<b id="bad-lat_lng">Non-decimal and bad lat/lng formats</b>
+### Data Prepping
+<span id="create-sdm-funct">Create function that will be used to generate the sdm table from the ebutterfly SQL dump.</span>
+```sql
+CREATE OR REPLACE FUNCTION generate_sdm_table(
+	)
+    RETURNS TABLE(observation_id integer, species_id integer, latin_name text, year integer, month integer, latitude character varying, longitude character varying) 
+    LANGUAGE 'plpgsql'
+
+    COST 100
+    VOLATILE 
+    ROWS 1000
+AS $BODY$
+
+BEGIN 
+RETURN QUERY 
+	WITH interestedObservations
+    AS (
+        SELECT O.observation_id, O.checklist_id, O.species_id
+        FROM eb_butterflies.observations AS O 
+        JOIN eb_central.idconfidences AS IC
+        ON O.idconfidence_id=IC.idconfidence_id
+        JOIN eb_central.lifestages AS LS
+        ON O.lifestage_id=LS.lifestage_id
+        JOIN eb_central.observationstatuses AS OS
+        ON O.observationstatus_id=OS.status_id
+        WHERE 
+        idconfidence='High' AND
+        lifestage='Adult' AND
+        (observation_status='Vetted' OR observation_status='Pending')
+    ), 
+    onlyOnesInSpeciesTable
+    AS (
+    	SELECT O.observation_id, O.checklist_id, S.species_id, S.latin_name 
+        FROM interestedObservations AS O
+        JOIN eb_butterflies.species AS S
+        ON O.species_id=S.species_id
+    ),
+    grabYearMonthAndSiteId
+    AS (
+    	SELECT O.observation_id, O.species_id, O.latin_name, C.site_id, C.year, C.month
+        FROM onlyOnesInSpeciesTable AS O 
+        JOIN eb_central.checklists AS C 
+        ON O.checklist_id=C.checklist_id
+    ),
+    grabLatLng 
+    AS (
+        SELECT O.observation_id, O.species_id, O.latin_name, C.latitude, C.longitude, O.year, O.month
+        FROM grabYearMonthAndSiteId AS O 
+        JOIN eb_central.sites AS C 
+        ON O.site_id=C.site_id
+    ) 
+    SELECT O.observation_id, 
+    	   O.species_id, 
+           CAST(O.latin_name as text), 
+           CAST(O.year AS integer), 
+           CAST(O.month as integer), 
+           O.latitude, 
+           O.longitude 
+           FROM grabLatLng AS O;
+END;
+```
+
+<span id="create-ebutterfly">Create table to house ebutterfly data from generate_sdm_table() function.</span>
+```sql
+CREATE TABLE ebutterfly_sdm_table
+(
+    observation_id integer,
+    species_id integer,
+    latin_name text COLLATE pg_catalog."default",
+    year integer,
+    month integer,
+    latitude character varying(256) COLLATE pg_catalog."default",
+    longitude character varying(256) COLLATE pg_catalog."default"
+);
+```
+
+<span id="create-taxon_sciname-table">Create table to house taxon ids and scientific names for easy joins and latin_name updates with ebutterfly table.</span>
+```sql 
+CREATE TABLE inat_species
+(
+    taxonid integer,
+    scientificname text COLLATE pg_catalog."default"
+);
+```
+
+
+### Data Cleaning
+<p>You can decide to change the table name to <code>ebutterfly_sdm_table</code> if you used the create table command from above and inserted data into it. If not, use these as a way to see bad data and make decisions from there.<p>
+
+<span id="bad-lat_lng">Non-decimal and bad lat/lng formats</span>
 
 ```sql
 SELECT * FROM generate_sdm_table()
 WHERE latitude NOT SIMILAR TO '-?[0-9]+.[0-9]+' 
-AND longitude NOT SIMILAR TO '-?[0-9]+.[0-9]+'
+AND longitude NOT SIMILAR TO '-?[0-9]+.[0-9]+';
 ```
-<hr />
 
-<b id="missing-year_month">Missing year or month</b>
+
+<span id="missing-year_month">Missing year or month</span>
 
 ```sql
-SELECT * FROM generate_sdm_table() WHERE year IS NULL OR month IS NULL
+SELECT * FROM generate_sdm_table() WHERE year IS NULL OR month IS NULL;
 ```
-<hr />
 
-<b id="missing-sciname">Missing Scientific Name</b>
+
+<span id="missing-sciname">Missing Scientific Name</span>
 
 ```sql
-SELECT * FROM generate_sdm_table() WHERE latin_name = ''
+SELECT * FROM generate_sdm_table() WHERE latin_name = '';
 ```
+
 
 
