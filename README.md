@@ -49,7 +49,8 @@ Edit the OUT directory for SDM output storage.
 </ol>
 
 ### Data Prepping
-<span id="create-sdm-funct">Create function that will be used to generate the sdm table from the ebutterfly SQL dump.</span>
+<p id="create-sdm-funct">Create function that will be used to generate the sdm table from the ebutterfly SQL dump.</p>
+
 ```sql
 CREATE OR REPLACE FUNCTION generate_sdm_table(
 	)
@@ -110,7 +111,8 @@ RETURN QUERY
 END;
 ```
 
-<span id="create-ebutterfly">Create table to house ebutterfly data from generate_sdm_table() function.</span>
+<p id="create-ebutterfly">Create table to house ebutterfly data from generate_sdm_table() function.</p>
+
 ```sql
 CREATE TABLE ebutterfly_sdm_table
 (
@@ -124,7 +126,8 @@ CREATE TABLE ebutterfly_sdm_table
 );
 ```
 
-<span id="create-taxon_sciname-table">Create table to house taxon ids and scientific names for easy joins and latin_name updates with ebutterfly table.</span>
+<p id="create-taxon_sciname-table">Create table to house taxon ids and scientific names for easy joins and latin_name updates with ebutterfly table.</p>
+
 ```sql 
 CREATE TABLE inat_species
 (
@@ -137,7 +140,7 @@ CREATE TABLE inat_species
 ### Data Cleaning
 <p>You can decide to change the table name to <code>ebutterfly_sdm_table</code> if you used the create table command from above and inserted data into it. If not, use these as a way to see bad data and make decisions from there.<p>
 
-<span id="bad-lat_lng">Non-decimal and bad lat/lng formats</span>
+<p id="bad-lat_lng">Non-decimal and bad lat/lng formats</p>
 
 ```sql
 SELECT * FROM generate_sdm_table()
@@ -146,14 +149,14 @@ AND longitude NOT SIMILAR TO '-?[0-9]+.[0-9]+';
 ```
 
 
-<span id="missing-year_month">Missing year or month</span>
+<p id="missing-year_month">Missing year or month</p>
 
 ```sql
 SELECT * FROM generate_sdm_table() WHERE year IS NULL OR month IS NULL;
 ```
 
 
-<span id="missing-sciname">Missing Scientific Name</span>
+<p id="missing-sciname">Missing Scientific Name</p>
 
 ```sql
 SELECT * FROM generate_sdm_table() WHERE latin_name = '';
