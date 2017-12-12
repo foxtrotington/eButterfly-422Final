@@ -20,6 +20,12 @@ Edit the OUT directory for SDM output storage.
 
     $ ./submit
 
+-------------------------------------------------------------------------------------------------------
+
+HPC Pipeline Details
+
+THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each individual job through subsetted "data lists" (as found in data/subsets/lists). The -J parameter passed to qsub indicated the number of jobs to run. The PBS_ARRAY_INDEX is used to target a specific list for each individual job. Each list contains 6 data files to ensure jobs can complete before walltime limit is reached. This particular workflow is designed to execute correctly following quick start instructions. Any modifications to the workflow would require editing the list files found within data/subsets as well as changing the -J parameter found in submit.sh.
+
 ## Data
 
 <p>There are various tasks that need to be accomplished before the ebutterfly data is prepped and ready for SDM consumption. The following are different SQL commands that will show you what data isn't suitable for SDM consumption. You can create a quarantine table and append <code>INSERT INTO quarantine</code> to the commmands to create copies of the bad data in that table.</p>
