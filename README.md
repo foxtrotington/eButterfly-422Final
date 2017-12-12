@@ -161,6 +161,12 @@ SELECT * FROM generate_sdm_table() WHERE year IS NULL OR month IS NULL;
 ```sql
 SELECT * FROM generate_sdm_table() WHERE latin_name = '';
 ```
+<p id="with-taxonid">Final Join With Scientific Name from Jeff's List</p>
 
+```sql
+SELECT observation_id, species_id, latin_name, year, month, latitude, longitude FROM generate_sdm_table() 
+AS G JOIN inat_species AS I 
+ON G.latin_name=I.scientificname
+```
 
 
