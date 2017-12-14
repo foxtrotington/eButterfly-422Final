@@ -65,11 +65,16 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
 ### Environment Setting for Linux
 If PostgreSQL and/or pgAdmin is already installed in your computer, you can skip this step. <br/>
 
-<p id="install-postresql"></p>
+<p id="install-postresql">Install PostreSQL</p>
+You can download and install just by following the process at "Installation" Section in the following link.<br/>
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
 
-<p id="create-user-for-postgresql"></p>
+<p id="create-user-for-postgresql">Create user for PostgreSQL</p>
 
-<p id="install-pgadmin"></p>
+
+<p id="install-pgadmin">Install pgAdmin</p>
+You cna install pgAdmin 4 (the newest pgAdmin as of 13th December 2017) following the instruction in the follwoing link. <br/>
+https://askubuntu.com/questions/831262/how-to-install-pgadmin-4-in-desktop-mode-on-ubuntu
 
 
 ### Data Prepping
