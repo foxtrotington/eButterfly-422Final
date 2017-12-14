@@ -37,6 +37,14 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
 ### Table of Contents
 <ol>
 	<li>
+		<a href="#environment-setting-for-linux">Environment Setting for Linux</a>
+		<ul>
+			<li><a href="#create-sdm-funct">Install PostreSQL</a></li>
+			<li><a href="#create-ebutterfly">Create user</a></li>
+			<li><a href="#create-taxon_sciname-table">Install PgAdmin</a></li>
+		</ul>
+	</li>		
+	<li>
     	<a href="#data-prep">Data Prepping</a>
     	<ul>
             <li><a href="#create-sdm-funct">Create generate_sdm_table Function</a></li>
@@ -53,6 +61,10 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
         </ul>
     </li>
 </ol>
+
+### Environment Setting for Linux
+
+
 
 ### Data Prepping
 <p id="create-sdm-funct">Create function that will be used to generate the sdm table from the ebutterfly SQL dump.</p>
