@@ -65,17 +65,21 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
 ### Environment Setting for Linux
 If PostgreSQL and/or pgAdmin is already installed in your computer, you can skip this step. <br/>
 
-<p id="install-postresql">Install PostreSQL</p>
+<p id="install-postresql">Install PostreSQL <br/>
 You can download and install just by following the process at "Installation" Section in the following link.<br/>
-https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04 <br/>
+Once you successfully instal PostgreSQL, you can log into it with the default account by running the command "sudo -u postgres psql". 
+</p>
 
-<p id="create-user-for-postgresql">Create user for PostgreSQL</p>
+<p id="create-user-for-postgresql">Create user for PostgreSQL <br/>
+When you follow the link above, the default account is "postgres". You can create new roles by following "Create a New Role" section, but this step is not necessary for this project (you can do you if you want). <br/>
+</p>
 
-
-<p id="install-pgadmin">Install pgAdmin</p>
+<p id="install-pgadmin">Install pgAdmin<br/>
 You cna install pgAdmin 4 (the newest pgAdmin as of 13th December 2017) following the instruction in the follwoing link. <br/>
 https://askubuntu.com/questions/831262/how-to-install-pgadmin-4-in-desktop-mode-on-ubuntu
-
+You may need to additionally install some Python packages bepending on the local environment.
+</p>
 
 ### Data Prepping
 <p id="create-sdm-funct">Create function that will be used to generate the sdm table from the ebutterfly SQL dump.</p>
