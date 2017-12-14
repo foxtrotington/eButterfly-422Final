@@ -39,9 +39,9 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
 	<li>
 		<a href="#environment-setting-for-linux">Environment Setting for Linux</a>
 		<ul>
-			<li><a href="#create-sdm-funct">Install PostreSQL</a></li>
-			<li><a href="#create-ebutterfly">Create user</a></li>
-			<li><a href="#create-taxon_sciname-table">Install PgAdmin</a></li>
+			<li><a href="#install-postresql">Install PostreSQL</a></li>
+			<li><a href="#create-user-for-postgresql">Create user for PostgreSQL</a></li>
+			<li><a href="#install-pgadmin">Install PgAdmin</a></li>
 		</ul>
 	</li>		
 	<li>
@@ -63,7 +63,13 @@ THis HPC pipeline is parallelized using PBS Job Arrays. Data is passed to each i
 </ol>
 
 ### Environment Setting for Linux
+If PostgreSQL and/or pgAdmin is already installed in your computer, you can skip this step. <br/>
 
+<p id="install-postresql"></p>
+
+<p id="create-user-for-postgresql"></p>
+
+<p id="install-pgadmin"></p>
 
 
 ### Data Prepping
